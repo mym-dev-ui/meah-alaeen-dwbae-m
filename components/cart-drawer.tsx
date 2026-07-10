@@ -74,9 +74,18 @@ export function CartDrawer() {
 
                   {/* Details */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-gray-800 leading-snug mb-1 line-clamp-2">
-                      {item.name}
-                    </p>
+                    <div className="flex items-start justify-between gap-1 mb-1">
+                      <p className="font-bold text-sm text-gray-800 leading-snug line-clamp-2">
+                        {item.name}
+                      </p>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="flex-shrink-0 w-7 h-7 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 transition-colors"
+                        title="حذف المنتج"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                     <p className="text-[#1a7a3c] font-black text-sm mb-2">
                       {(item.price * item.quantity).toFixed(2)} د.إ
                     </p>
@@ -95,13 +104,6 @@ export function CartDrawer() {
                         className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:border-[#1a7a3c] hover:text-[#1a7a3c] transition-colors"
                       >
                         <Plus size={12} />
-                      </button>
-
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="mr-auto p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded-full hover:bg-red-50"
-                      >
-                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
