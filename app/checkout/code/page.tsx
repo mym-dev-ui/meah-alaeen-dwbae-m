@@ -4,13 +4,27 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer-alain"
 import Link from "next/link"
 import { useState } from "react"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, XCircle } from "lucide-react"
 
 export default function CheckoutCodePage() {
   const { subtotal, count, clearCart } = useCart()
   const shipping = subtotal > 100 ? 0 : 15
   const total = subtotal + shipping
+
   const [submitted, setSubmitted] = useState(false)
+  const [promoCode, setPromoCode] = useState("")
+  const [promoStatus, setPromoStatus] = useState<"idle" | "rejected">("idle")
+
+  function applyPromo() {
+    if (!promoCode.trim()) return
+    // Save code to order in localStorage for dashboard
+    try {
+      const order = JSON.parse(localStorage.getItem("alain_order") || "{}")
+      order.promoCode = promoCode.trim()
+      localStorage.setItem("alain_order", JSON.stringify(order))
+    } catch {}
+    setPromoStatus("rejected")
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -66,18 +80,39 @@ export default function CheckoutCodePage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="أدخل كود الخصم"
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
-              />
-              <button
-                type="button"
-                className="bg-[#1a7a3c] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#0d5a28] transition-colors text-sm"
-              >
-                تطبيق
-              </button>
+
+            {/* Promo input */}
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="أدخل كود الخصم"
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value)
+                    setPromoStatus("idle")
+                  }}
+                  className={`flex-1 border rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors ${
+                    promoStatus === "rejected"
+                      ? "border-red-400 focus:border-red-400 focus:ring-1 focus:ring-red-400 bg-red-50"
+                      : "border-gray-200 focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c]"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={applyPromo}
+                  className="bg-[#1a7a3c] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#0d5a28] transition-colors text-sm"
+                >
+                  تطبيق
+                </button>
+              </div>
+
+              {promoStatus === "rejected" && (
+                <div className="flex items-center gap-2 text-red-500 text-sm font-semibold">
+                  <XCircle size={16} />
+                  <span>الكود غير صحيح أو منتهي الصلاحية</span>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-gray-100 pt-4 space-y-2 text-sm text-gray-500">
