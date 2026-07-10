@@ -1,0 +1,81 @@
+                                            
+9:03:37 AM: ────────────────────────────────────────────────────────────────
+9:03:37 AM: ​
+9:03:37 AM: ❯ Version
+9:03:37 AM:   @netlify/build 36.1.2
+9:03:37 AM: ​
+9:03:37 AM: ❯ Flags
+9:03:37 AM:   accountId: 6a5078397354f27972c9beeb
+9:03:37 AM:   baseRelDir: true
+9:03:37 AM:   buildId: 6a508b2e23e04300085cb105
+9:03:37 AM:   deployId: 6a508b2e23e04300085cb107
+9:03:38 AM: ​
+9:03:38 AM: ❯ Current directory
+9:03:38 AM:   /opt/build/repo
+9:03:38 AM: ​
+9:03:38 AM: ❯ Config file
+9:03:38 AM:   /opt/build/repo/netlify.toml
+9:03:38 AM: ​
+9:03:38 AM: ❯ Context
+9:03:38 AM:   production
+9:03:38 AM: ​
+9:03:38 AM: ❯ Using Next.js Runtime - v5.15.12
+9:03:41 AM: Next.js cache restored
+9:03:41 AM: ​
+9:03:41 AM: build.command from netlify.toml                               
+9:03:41 AM: ────────────────────────────────────────────────────────────────
+9:03:41 AM: ​
+9:03:41 AM: $ npm run build
+9:03:41 AM: > alain-water@0.1.0 build
+9:03:41 AM: > next build
+9:03:42 AM:    ▲ Next.js 15.5.20
+9:03:42 AM:    Creating an optimized production build ...
+9:03:52 AM:  ✓ Compiled successfully in 7.3s
+9:03:52 AM:    Linting and checking validity of types ...
+9:03:55 AM:    Collecting page data ...
+9:03:56 AM:    Generating static pages (0/13) ...
+9:03:56 AM: [2026-07-10T06:03:56.720Z]  @firebase/database: FIREBASE FATAL ERROR: Can't determine Firebase Database URL. Be sure to include  a Project ID when calling firebase.initializeApp(). 
+Error occurred prerendering page "/checkout". Read more: https://nextjs.org/docs/messages/prerender-error
+9:03:56 AM: Error: FIREBASE FATAL ERROR: Can't determine Firebase Database URL. Be sure to include  a Project ID when calling firebase.initializeApp(). 
+    at L (.next/server/chunks/890.js:1:131200)
+9:03:56 AM:     at <unknown> (.next/server/chunks/890.js:1:254515)
+9:03:56 AM:     at e.instanceFactory (.next/server/chunks/890.js:1:255427)
+9:03:56 AM:     at g.getOrInitializeService (.next/server/chunks/890.js:1:17428)
+9:03:56 AM:     at g.getImmediate (.next/server/chunks/890.js:1:15387)
+9:03:56 AM:     at dJ (.next/server/chunks/890.js:1:253076)
+9:03:56 AM:     at 43006 (.next/server/app/dashboard/page.js:2:8089)
+9:03:56 AM:     at c (.next/server/webpack-runtime.js:1:127)
+9:03:56 AM:     at 9009 (.next/server/app/checkout/page.js:1:514)
+9:03:56 AM:     at Object.c [as require] (.next/server/webpack-runtime.js:1:127) {
+9:03:56 AM:   digest: '478633298'
+9:03:56 AM: }
+9:03:56 AM: Export encountered an error on /checkout/page: /checkout, exiting the build.
+9:03:56 AM:  ⨯ Next.js build worker exited with code: 1 and signal: null
+9:03:56 AM: ​
+9:03:56 AM: "build.command" failed                                        
+9:03:56 AM: ────────────────────────────────────────────────────────────────
+9:03:56 AM: ​
+9:03:56 AM:   Error message
+9:03:56 AM:   Command failed with exit code 1: npm run build (https://ntl.fyi/exit-code-1)
+9:03:56 AM: ​
+9:03:56 AM:   Error location
+9:03:56 AM:   In build.command from netlify.toml:
+9:03:56 AM:   npm run build
+9:03:56 AM: ​
+9:03:56 AM:   Resolved config
+9:03:56 AM:   build:
+9:03:56 AM:     command: npm run build
+9:03:56 AM:     commandOrigin: config
+9:03:56 AM:     publish: /opt/build/repo/.next
+9:03:56 AM:     publishOrigin: config
+9:03:56 AM:   plugins:
+9:03:56 AM:     - inputs: {}
+9:03:56 AM:       origin: config
+9:03:56 AM:       package: "@netlify/plugin-nextjs"
+9:03:57 AM: Failed during stage 'building site': Build script returned non-zero exit code: 2 (https://ntl.fyi/exit-code-2)
+9:03:57 AM: Build failed due to a user error: Build script returned non-zero exit code: 2
+9:03:57 AM: Failing build: Failed to build site
+9:03:57 AM: Finished processing build request in 29.657s
+Deploying
+Skipped
+Cleanup
