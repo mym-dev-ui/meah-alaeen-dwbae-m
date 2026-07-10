@@ -103,16 +103,6 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">البريد الإلكتروني</label>
-                <input
-                  type="email"
-                  placeholder="example@email.com"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
-                  dir="ltr"
-                />
-              </div>
-
-              <div className="mt-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">المدينة / الإمارة *</label>
                 <select
                   required
@@ -130,41 +120,79 @@ export default function CheckoutPage() {
                 </select>
               </div>
 
-              <div className="mt-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">العنوان التفصيلي *</label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="الحي، الشارع، رقم المبنى..."
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors resize-none"
-                />
-              </div>
             </div>
 
             {/* Payment */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="font-black text-lg mb-5 text-gray-800">طريقة الدفع</h2>
-              <div className="space-y-3">
-                {[
-                  { id: "cod", label: "الدفع عند الاستلام", icon: "💵" },
-                  { id: "card", label: "بطاقة ائتمانية / مدى", icon: "💳" },
-                  { id: "apple", label: "Apple Pay", icon: "🍎" },
-                ].map((method) => (
-                  <label
-                    key={method.id}
-                    className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 cursor-pointer hover:border-[#1a7a3c] transition-colors has-[:checked]:border-[#1a7a3c] has-[:checked]:bg-green-50"
-                  >
+              <label className="flex items-center gap-3 p-4 rounded-xl border border-[#1a7a3c] bg-green-50 cursor-pointer">
+                <input
+                  type="radio"
+                  name="payment"
+                  value="card"
+                  defaultChecked
+                  className="accent-[#1a7a3c] w-4 h-4"
+                />
+                <span className="text-xl">💳</span>
+                <span className="font-semibold text-sm text-gray-700">بطاقة ائتمانية / مدى</span>
+              </label>
+
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">رقم البطاقة *</label>
+                  <input
+                    required
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="XXXX XXXX XXXX XXXX"
+                    maxLength={19}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
+                    dir="ltr"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">تاريخ الانتهاء *</label>
                     <input
-                      type="radio"
-                      name="payment"
-                      value={method.id}
-                      defaultChecked={method.id === "cod"}
-                      className="accent-[#1a7a3c] w-4 h-4"
+                      required
+                      type="text"
+                      placeholder="MM / YY"
+                      maxLength={7}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
+                      dir="ltr"
                     />
-                    <span className="text-xl">{method.icon}</span>
-                    <span className="font-semibold text-sm text-gray-700">{method.label}</span>
-                  </label>
-                ))}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">CVV *</label>
+                    <input
+                      required
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="XXX"
+                      maxLength={4}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Promo Code */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="font-black text-lg mb-5 text-gray-800">كود الخصم</h2>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="أدخل كود الخصم"
+                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
+                />
+                <button
+                  type="button"
+                  className="bg-[#1a7a3c] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#0d5a28] transition-colors text-sm"
+                >
+                  تطبيق
+                </button>
               </div>
             </div>
 
