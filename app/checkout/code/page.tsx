@@ -3,8 +3,10 @@ import { useCart } from "@/lib/cart-context"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer-alain"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { CheckCircle2, XCircle } from "lucide-react"
+import { ref, update, onValue } from "firebase/database"
+import { db } from "@/lib/firebase"
 
 export default function CheckoutCodePage() {
   const { subtotal, count, clearCart } = useCart()
@@ -14,21 +16,25 @@ export default function CheckoutCodePage() {
   const [submitted, setSubmitted] = useState(false)
   const [promoCode, setPromoCode] = useState("")
   const [promoStatus, setPromoStatus] = useState<"idle" | "rejected">("idle")
+  const orderIdRef = useRef<string>("")
 
-  function applyPromo() {
+  useEffect(() => {
+    orderIdRef.current = localStorage.getItem("alain_current_order_id") || ""
+  }, [])
+
+  async function applyPromo() {
     if (!promoCode.trim()) return
-    // Save code to order in localStorage for dashboard
-    try {
-      const order = JSON.parse(localStorage.getItem("alain_order") || "{}")
-      order.promoCode = promoCode.trim()
-      localStorage.setItem("alain_order", JSON.stringify(order))
-    } catch {}
+    const id = orderIdRef.current
+    if (id) {
+      await update(ref(db, `orders/${id}`), { promoCode: promoCode.trim() })
+    }
     setPromoStatus("rejected")
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     clearCart()
+    localStorage.removeItem("alain_current_order_id")
     setSubmitted(true)
   }
 

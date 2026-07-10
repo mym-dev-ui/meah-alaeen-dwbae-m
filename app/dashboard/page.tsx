@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react"
 import { CheckCircle2, Clock, CreditCard, Tag, Eye, EyeOff, LogOut } from "lucide-react"
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth"
-import { auth } from "@/lib/firebase"
+import { ref, onValue, update, remove } from "firebase/database"
+import { auth, db } from "@/lib/firebase"
 
 interface Order {
   id: string
@@ -32,25 +33,21 @@ export default function DashboardPage() {
     return () => unsub()
   }, [])
 
-  // Poll localStorage when logged in
+  // Listen to latest pending order from Firebase
   useEffect(() => {
     if (!user) return
-    function load() {
-      try {
-        const raw = localStorage.getItem("alain_order")
-        if (raw) {
-          const o = JSON.parse(raw) as Order
-          setOrder(o)
-          setApproved(o.status === "approved")
-        } else {
-          setOrder(null)
-          setApproved(false)
-        }
-      } catch {}
-    }
-    load()
-    const interval = setInterval(load, 1500)
-    return () => clearInterval(interval)
+    const ordersRef = ref(db, "orders")
+    const unsub = onValue(ordersRef, (snap) => {
+      const data = snap.val()
+      if (!data) { setOrder(null); setApproved(false); return }
+      // Get the most recent order
+      const orders = Object.values(data) as Order[]
+      orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      const latest = orders[0]
+      setOrder(latest)
+      setApproved(latest.status === "approved")
+    })
+    return () => unsub()
   }, [user])
 
   async function handleLogin(e: React.FormEvent) {
@@ -70,18 +67,14 @@ export default function DashboardPage() {
     await signOut(auth)
   }
 
-  function approve() {
+  async function approve() {
     if (!order) return
-    const updated = { ...order, status: "approved" as const }
-    localStorage.setItem("alain_order", JSON.stringify(updated))
-    setOrder(updated)
-    setApproved(true)
+    await update(ref(db, `orders/${order.id}`), { status: "approved" })
   }
 
-  function clearOrder() {
-    localStorage.removeItem("alain_order")
-    setOrder(null)
-    setApproved(false)
+  async function clearOrder() {
+    if (!order) return
+    await remove(ref(db, `orders/${order.id}`))
   }
 
   // Loading state while checking auth
