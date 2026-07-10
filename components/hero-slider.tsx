@@ -2,6 +2,8 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useCart } from "@/lib/cart-context"
+import { ShoppingCart, Check } from "lucide-react"
 
 const slides = [
   {
@@ -67,12 +69,46 @@ const slides = [
     image: "/images/offer-buy20.jpg",
     imageAlt: "عرض مياه العين",
     imagePos: "object-cover",
+    addToCart: false,
+  },
+  {
+    id: 5,
+    bg: "from-[#1a0000] via-[#3d0000] to-[#6b0000]",
+    label: "SPECIAL OFFER",
+    labelColor: "bg-red-600",
+    title: "اشتري 5 جالون",
+    title2: "",
+    sub: "واحصل على",
+    highlight: "براد مجاناً 🎁",
+    desc: "عرض حصري مع براد Mobel — لا يفوتك!",
+    cta: "",
+    ctaHref: "",
+    image: "/images/offer-cooler.jpeg",
+    imageAlt: "عرض البراد مجاناً",
+    imagePos: "object-contain",
+    addToCart: true,
+    price: 70,
+    productId: "cooler-offer-5gal",
   },
 ]
 
 export function HeroSlider() {
   const [current, setCurrent] = useState(0)
   const [fading, setFading] = useState(false)
+  const [added, setAdded] = useState(false)
+  const { addItem } = useCart()
+
+  function handleAddToCart(slide: typeof slides[number]) {
+    if (!("price" in slide)) return
+    addItem({
+      id: (slide as any).productId,
+      name: `${slide.title} ${slide.highlight}`,
+      price: (slide as any).price,
+      image: slide.image,
+    })
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
 
   const goTo = useCallback((index: number) => {
     setFading(true)
@@ -135,13 +171,33 @@ export function HeroSlider() {
           <p className="text-base md:text-lg font-light opacity-90 mb-0.5">{slide.sub}</p>
           <p className="text-2xl md:text-3xl font-black text-yellow-300 mb-4 uppercase">{slide.highlight}</p>
           <p className="text-sm md:text-base opacity-75 mb-6 max-w-xs">{slide.desc}</p>
-          <Link
-            href={slide.ctaHref}
-            className="inline-flex items-center gap-2 bg-white text-[#1a7a3c] font-bold px-6 py-3 rounded-full hover:bg-green-50 transition-all shadow-lg hover:shadow-xl text-sm"
-          >
-            {slide.cta}
-            <span className="text-base">‹</span>
-          </Link>
+
+          {"addToCart" in slide && slide.addToCart ? (
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                onClick={() => handleAddToCart(slide)}
+                className={`inline-flex items-center gap-2 font-bold px-6 py-3 rounded-full transition-all shadow-lg text-sm ${
+                  added
+                    ? "bg-green-400 text-white"
+                    : "bg-white text-red-700 hover:bg-red-50"
+                }`}
+              >
+                {added ? <Check size={16} /> : <ShoppingCart size={16} />}
+                {added ? "تمت الإضافة!" : "أضف للسلة"}
+              </button>
+              <span className="bg-red-700/60 text-white font-black text-lg px-4 py-2 rounded-full backdrop-blur-sm">
+                {"price" in slide ? `${(slide as any).price} د.إ` : ""}
+              </span>
+            </div>
+          ) : (
+            <Link
+              href={slide.ctaHref}
+              className="inline-flex items-center gap-2 bg-white text-[#1a7a3c] font-bold px-6 py-3 rounded-full hover:bg-green-50 transition-all shadow-lg hover:shadow-xl text-sm"
+            >
+              {slide.cta}
+              <span className="text-base">‹</span>
+            </Link>
+          )}
         </div>
 
         {/* Image — left side (RTL) */}
