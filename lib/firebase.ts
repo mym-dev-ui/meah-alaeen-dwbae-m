@@ -19,8 +19,8 @@ const app = firebaseConfig.projectId
     : getApp()
   : null;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const db = app ? getDatabase(app) : (null as any);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const auth = app ? getAuth(app) : (null as any);
+// eslint-disable-next-line
+export const db = app ? getDatabase(app) : (null as ReturnType<typeof getDatabase>);
+// eslint-disable-next-line
+export const auth = app ? getAuth(app) : (null as ReturnType<typeof getAuth>);
 export default app;
