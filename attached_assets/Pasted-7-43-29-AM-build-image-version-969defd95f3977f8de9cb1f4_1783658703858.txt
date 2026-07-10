@@ -1,0 +1,31 @@
+7:43:29 AM: build-image version: 969defd95f3977f8de9cb1f48802a7e6f3d8c0b3 (noble-new-builds)
+7:43:29 AM: buildbot version: 969defd95f3977f8de9cb1f48802a7e6f3d8c0b3
+7:43:29 AM: Fetching cached dependencies
+7:43:29 AM: Failed to fetch cache, continuing with build
+7:43:29 AM: Starting to prepare the repo for build
+7:43:29 AM: No cached dependencies found. Cloning fresh repo
+7:43:29 AM: git clone --filter=blob:none https://github.com/mym-dev-ui/meah-alaeen-dwbae-m
+7:43:29 AM: Preparing Git Reference refs/heads/main
+7:43:31 AM: Installing dependencies
+7:43:31 AM: mise ~/.config/mise/config.toml tools: python@3.14.3
+7:43:31 AM: mise ~/.config/mise/config.toml tools: ruby@3.4.8
+7:43:31 AM: mise ~/.config/mise/config.toml tools: go@1.26.2
+7:43:32 AM: v24.18.0 is already installed.
+7:43:32 AM: Now using node v24.18.0 (npm v11.16.0)
+7:43:32 AM: Enabling Node.js Corepack
+7:43:32 AM: No npm workspaces detected
+7:43:32 AM: Installing npm packages using npm version 11.16.0
+7:43:34 AM: npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+7:43:34 AM: npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+7:44:44 AM: Failed during stage 'Install dependencies': dependency_installation script returned non-zero exit code: 1
+7:44:44 AM: npm error code ENOTFOUND
+7:44:44 AM: npm error syscall getaddrinfo
+7:44:44 AM: npm error errno ENOTFOUND
+7:44:44 AM: npm error network request to http://package-firewall.replit.local/npm/yaml/-/yaml-2.9.0.tgz failed, reason: getaddrinfo ENOTFOUND package-firewall.replit.local
+7:44:44 AM: npm error network This is a problem related to network connectivity.
+7:44:44 AM: npm error network In most cases you are behind a proxy or have bad network settings.
+7:44:44 AM: npm error network
+7:44:44 AM: npm error network If you are behind a proxy, please make sure that the 'proxy' config is set properly.  See: 'npm help config'
+7:44:44 AM: npm error A complete log of this run can be found in: /opt/buildhome/.npm/_logs/2026-07-10T04_43_32_785Z-debug-0.log
+7:44:44 AM: Error during npm install
+7:44:44 AM: Failing build: Failed to install dependencies
