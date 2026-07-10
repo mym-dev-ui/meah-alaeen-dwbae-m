@@ -1,20 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    allowedDevOrigins: [
-        '*.replit.dev',
-        '*.repl.co',
-        '*.replit.app',
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'alainwater.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.shopify.com',
+      },
     ],
-    async headers() {
-        return [
-            {
-                source: '/:path*',
-                headers: [
-                    { key: 'Access-Control-Allow-Origin', value: '*' },
-                ],
-            },
-        ];
-    },
+  },
 };
 
 module.exports = nextConfig;

@@ -2,127 +2,50 @@ import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 import type { Viewport } from "next"
-import { Toaster } from "@/components/ui/toaster"
-import { OnlineTracker } from "@/components/online-tracker"
-import { CookieConsent } from "@/components/cookie-consent"
-import { LegalFooter } from "@/components/legal-footer"
-import { VisitorAdminCommandListener } from "@/components/visitor-admin-command-listener"
+import { CartProvider } from "@/lib/cart-context"
+import { CartDrawer } from "@/components/cart-drawer"
 
 export const metadata: Metadata = {
   title: {
-    default: "تأمين سريع وموثوق - مقارنة أسعار التأمين في السعودية | becar",
-    template: "%s | becar"
+    default: "مياه العين | مياه صحية نقية",
+    template: "%s | مياه العين"
   },
-  description: "احصل على أفضل عروض التأمين في السعودية - مقارنة سريعة وآمنة لأكثر من 20 شركة تأمين. تأمين شامل وضد الغير بأفضل الأسعار.",
-  keywords: ["تأمين", "تأمين سيارات", "مقارنة تأمين", "السعودية", "تأمين شامل", "تأمين ضد الغير", "becar"],
-  authors: [{ name: "becar" }],
-  creator: "becar",
-  publisher: "becar",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL('https://demacax.com'),
-  alternates: {
-    canonical: '/',
-  },
+  description: "مياه العين - مياه شرب صحية ونقية. اكتشف مجموعتنا الواسعة من المياه المعبأة والمياه الوظيفية والمجموعة المميزة.",
+  keywords: ["مياه العين", "مياه معبأة", "مياه صحية", "al ain water"],
+  metadataBase: new URL('https://alainwater.com'),
   openGraph: {
-    title: "تأمين سريع وموثوق - مقارنة أسعار التأمين في السعودية",
-    description: "احصل على أفضل عروض التأمين في السعودية - مقارنة سريعة وآمنة لأكثر من 20 شركة تأمين",
-    url: "https://demacax.com",
-    siteName: "becar - تأمين سريع",
-    locale: "ar_SA",
+    title: "مياه العين",
+    description: "مياه شرب صحية ونقية",
+    siteName: "مياه العين",
+    locale: "ar_AE",
     type: "website",
-    images: [
-      {
-        url: "/apple-icon.png",
-        width: 180,
-        height: 180,
-        alt: "becar - تأمين سريع وموثوق",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "تأمين سريع وموثوق - مقارنة أسعار التأمين في السعودية",
-    description: "احصل على أفضل عروض التأمين في السعودية - مقارنة سريعة وآمنة",
-    images: ["/apple-icon.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
+    icon: "/favicon.ico",
   },
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 }
-
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Structured data for Google
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "InsuranceAgency",
-    "name": "تأمين سريع وموثوق - becar",
-    "description": "احصل على أفضل عروض التأمين في السعودية - مقارنة سريعة وآمنة لأكثر من 20 شركة تأمين",
-    "url": "https://markbat-tameen.vercel.app",
-    "areaServed": {
-      "@type": "Country",
-      "name": "Saudi Arabia"
-    },
-    "priceRange": "$$",
-    "availableLanguage": ["ar", "en"],
-    "serviceType": "تأمين السيارات"
-  }
-
   return (
-    <html lang="ar">
+    <html lang="ar" dir="rtl">
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body>
-        {children}
-        <LegalFooter />
-        <CookieConsent />
-        <Toaster />
-        <OnlineTracker />
-        <VisitorAdminCommandListener />
+      <body className="bg-white text-gray-900 antialiased">
+        <CartProvider>
+          <CartDrawer />
+          {children}
+        </CartProvider>
       </body>
     </html>
   )
