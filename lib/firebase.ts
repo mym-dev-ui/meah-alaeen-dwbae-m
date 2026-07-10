@@ -1,4 +1,4 @@
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
@@ -13,8 +13,14 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app = firebaseConfig.projectId
+  ? getApps().length === 0
+    ? initializeApp(firebaseConfig)
+    : getApp()
+  : null;
 
-export const db = getDatabase(app);
-export const auth = getAuth(app);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const db = app ? getDatabase(app) : (null as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const auth = app ? getAuth(app) : (null as any);
 export default app;
