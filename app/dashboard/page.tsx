@@ -1,9 +1,8 @@
 "use client"
 import { useState, useEffect } from "react"
 import { CheckCircle2, Clock, CreditCard, Tag, Eye, EyeOff, LogOut } from "lucide-react"
-
-const ADMIN_EMAIL = "admin@alainwater.com"
-const ADMIN_PASSWORD = "Admin@1234"
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 
 interface Order {
   id: string
@@ -17,23 +16,25 @@ interface Order {
 }
 
 export default function DashboardPage() {
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [user, setUser] = useState<User | null | undefined>(undefined)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPass, setShowPass] = useState(false)
   const [loginError, setLoginError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const [order, setOrder] = useState<Order | null>(null)
   const [approved, setApproved] = useState(false)
 
-  // Check session
+  // Listen to Firebase auth state
   useEffect(() => {
-    if (sessionStorage.getItem("dashboard_auth") === "1") setLoggedIn(true)
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u))
+    return () => unsub()
   }, [])
 
-  // Poll localStorage for orders
+  // Poll localStorage when logged in
   useEffect(() => {
-    if (!loggedIn) return
+    if (!user) return
     function load() {
       try {
         const raw = localStorage.getItem("alain_order")
@@ -41,30 +42,32 @@ export default function DashboardPage() {
           const o = JSON.parse(raw) as Order
           setOrder(o)
           setApproved(o.status === "approved")
+        } else {
+          setOrder(null)
+          setApproved(false)
         }
       } catch {}
     }
     load()
     const interval = setInterval(load, 1500)
     return () => clearInterval(interval)
-  }, [loggedIn])
+  }, [user])
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      sessionStorage.setItem("dashboard_auth", "1")
-      setLoggedIn(true)
-      setLoginError("")
-    } else {
+    setLoading(true)
+    setLoginError("")
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password)
+    } catch {
       setLoginError("البريد الإلكتروني أو كلمة المرور غير صحيحة")
+    } finally {
+      setLoading(false)
     }
   }
 
-  function logout() {
-    sessionStorage.removeItem("dashboard_auth")
-    setLoggedIn(false)
-    setEmail("")
-    setPassword("")
+  async function logout() {
+    await signOut(auth)
   }
 
   function approve() {
@@ -81,8 +84,19 @@ export default function DashboardPage() {
     setApproved(false)
   }
 
+  // Loading state while checking auth
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce mx-1" />
+        <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce mx-1 [animation-delay:150ms]" />
+        <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce mx-1 [animation-delay:300ms]" />
+      </div>
+    )
+  }
+
   // ── Login Screen ──
-  if (!loggedIn) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4" dir="rtl">
         <div className="w-full max-w-sm">
@@ -136,9 +150,10 @@ export default function DashboardPage() {
 
             <button
               type="submit"
-              className="w-full bg-amber-500 hover:bg-amber-400 text-gray-900 font-black py-3 rounded-xl transition-colors mt-2"
+              disabled={loading}
+              className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-gray-900 font-black py-3 rounded-xl transition-colors mt-2"
             >
-              دخول
+              {loading ? "جارٍ الدخول…" : "تسجيل الدخول"}
             </button>
           </form>
         </div>
