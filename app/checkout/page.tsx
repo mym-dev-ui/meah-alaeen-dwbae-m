@@ -5,18 +5,19 @@ import { Footer } from "@/components/footer-alain"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { CheckCircle2 } from "lucide-react"
 
 export default function CheckoutPage() {
-  const { items, subtotal, count, clearCart } = useCart()
+  const { items, subtotal, count } = useCart()
+  const router = useRouter()
   const [submitted, setSubmitted] = useState(false)
   const shipping = subtotal > 100 ? 0 : 15
   const total = subtotal + shipping
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    clearCart()
-    setSubmitted(true)
+    router.push("/checkout/code")
   }
 
   if (submitted) {
@@ -178,29 +179,11 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Promo Code */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h2 className="font-black text-lg mb-5 text-gray-800">كود الخصم</h2>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="أدخل كود الخصم"
-                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a7a3c] focus:ring-1 focus:ring-[#1a7a3c] transition-colors"
-                />
-                <button
-                  type="button"
-                  className="bg-[#1a7a3c] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#0d5a28] transition-colors text-sm"
-                >
-                  تطبيق
-                </button>
-              </div>
-            </div>
-
             <button
               type="submit"
               className="w-full bg-[#1a7a3c] hover:bg-[#0d5a28] text-white font-black py-4 rounded-2xl text-lg transition-colors shadow-lg shadow-green-200"
             >
-              تأكيد الطلب — {total.toFixed(2)} د.إ
+              متابعة
             </button>
           </form>
 
