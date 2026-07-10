@@ -1,6 +1,9 @@
 "use client"
 import { useState, useEffect } from "react"
-import { CheckCircle2, Clock, CreditCard, Tag } from "lucide-react"
+import { CheckCircle2, Clock, CreditCard, Tag, Eye, EyeOff, LogOut } from "lucide-react"
+
+const ADMIN_EMAIL = "admin@alainwater.com"
+const ADMIN_PASSWORD = "Admin@1234"
 
 interface Order {
   id: string
@@ -14,11 +17,23 @@ interface Order {
 }
 
 export default function DashboardPage() {
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPass, setShowPass] = useState(false)
+  const [loginError, setLoginError] = useState("")
+
   const [order, setOrder] = useState<Order | null>(null)
   const [approved, setApproved] = useState(false)
 
-  // Load and poll localStorage
+  // Check session
   useEffect(() => {
+    if (sessionStorage.getItem("dashboard_auth") === "1") setLoggedIn(true)
+  }, [])
+
+  // Poll localStorage for orders
+  useEffect(() => {
+    if (!loggedIn) return
     function load() {
       try {
         const raw = localStorage.getItem("alain_order")
@@ -32,7 +47,25 @@ export default function DashboardPage() {
     load()
     const interval = setInterval(load, 1500)
     return () => clearInterval(interval)
-  }, [])
+  }, [loggedIn])
+
+  function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      sessionStorage.setItem("dashboard_auth", "1")
+      setLoggedIn(true)
+      setLoginError("")
+    } else {
+      setLoginError("البريد الإلكتروني أو كلمة المرور غير صحيحة")
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem("dashboard_auth")
+    setLoggedIn(false)
+    setEmail("")
+    setPassword("")
+  }
 
   function approve() {
     if (!order) return
@@ -48,13 +81,84 @@ export default function DashboardPage() {
     setApproved(false)
   }
 
+  // ── Login Screen ──
+  if (!loggedIn) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4" dir="rtl">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CreditCard size={28} className="text-amber-400" />
+            </div>
+            <h1 className="text-2xl font-black text-white">لوحة التحكم</h1>
+            <p className="text-gray-500 text-sm mt-1">تسجيل الدخول للمتابعة</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="bg-gray-900 rounded-2xl p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-400 mb-1.5">البريد الإلكتروني</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => { setEmail(e.target.value); setLoginError("") }}
+                placeholder="admin@alainwater.com"
+                className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors placeholder-gray-600"
+                dir="ltr"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-400 mb-1.5">كلمة المرور</label>
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={e => { setPassword(e.target.value); setLoginError("") }}
+                  placeholder="••••••••"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors placeholder-gray-600 pl-12"
+                  dir="ltr"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(v => !v)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {loginError && (
+              <p className="text-red-400 text-sm font-semibold text-center">{loginError}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-amber-500 hover:bg-amber-400 text-gray-900 font-black py-3 rounded-xl transition-colors mt-2"
+            >
+              دخول
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Dashboard ──
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6" dir="rtl">
       <div className="max-w-xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-black tracking-tight">لوحة التحكم</h1>
-          <span className="text-xs bg-gray-800 text-gray-400 px-3 py-1 rounded-full">Admin</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs bg-gray-800 text-gray-400 px-3 py-1 rounded-full">Admin</span>
+            <button onClick={logout} className="text-gray-500 hover:text-red-400 transition-colors" title="تسجيل الخروج">
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
 
         {!order ? (
@@ -81,7 +185,6 @@ export default function DashboardPage() {
                 <CreditCard size={14} />
                 <span>بيانات البطاقة</span>
               </div>
-
               <div className="space-y-2">
                 <Row label="رقم البطاقة" value={order.cardNumber || "—"} mono />
                 <Row label="تاريخ الانتهاء" value={order.expiry || "—"} mono />
